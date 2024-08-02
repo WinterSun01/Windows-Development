@@ -33,13 +33,20 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				HWND hCombo = GetDlgItem(hwnd, IDC_COMBO);
 				INT i = SendMessage(hCombo, CB_GETCURSEL, 0, 0);
+				
+				if(i == CB_ERR)
+				MessageBox(hwnd, "Для начала сделайте Ваш выбор", "Warning", MB_OK | MB_ICONWARNING);
+			else
+			{	 
 				CONST INT SIZE = 256;
 				CHAR sz_buffer[SIZE]{};
 				CHAR sz_message[SIZE]{};
 				SendMessage(hCombo, CB_GETLBTEXT, i, (LPARAM)sz_buffer);
 				sprintf(sz_message, "Вы выбрали пункт N%i со значением %s", i, sz_buffer);
 				MessageBox(hwnd, sz_message, "Your choice", MB_OK | MB_ICONINFORMATION);
-			}
+			}    
+
+		}	
 			break;
 
 			case IDCANCEL: EndDialog(hwnd,0);
