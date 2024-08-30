@@ -5,6 +5,10 @@
 // Next default values for new objects
 // 
 
+#define CM_EXIT				 200
+#define CM_SQUARE_BLUE		 201
+#define CM_SQUARE_GREEN		 202
+
 #define IDC_EDIT_DISPLAY	 999
 
 #define IDC_BUTTON_0		1000
