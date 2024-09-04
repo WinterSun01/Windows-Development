@@ -9,12 +9,14 @@ CONST CHAR g_sz_WINDOW_CLASS[] = "Calc_PD_311";
 CONST INT g_i_START_X = 10;
 CONST INT g_i_START_Y = 10;
 
-CONST INT g_i_BUTTON_SIZE = 50;
-CONST INT g_i_INTERVAL = 5;
+CONST INT g_i_BUTTON_SIZE = 64;
+CONST INT g_i_INTERVAL = 0;
 CONST INT g_i_BUTTON_DOUBLE_SIZE = g_i_BUTTON_SIZE * 2 + g_i_INTERVAL;
 
 CONST INT g_i_DISPLAY_WIDTH = (g_i_BUTTON_SIZE + g_i_INTERVAL) * 5;
-CONST INT g_i_DISPLAY_HEIGHT = 22;
+CONST INT g_i_DISPLAY_HEIGHT = 64;
+CONST INT g_i_FONT_HEIGHT = g_i_DISPLAY_HEIGHT - 2;
+CONST INT g_i_FONT_WIDTH = g_i_FONT_HEIGHT / 2.5;
 
 CONST INT g_i_TITLE_HEIGHT = 39;
 CONST INT g_i_WINDOW_WIDTH = g_i_DISPLAY_WIDTH + g_i_START_X * 2 + 16;
@@ -28,8 +30,18 @@ CONST INT g_i_START_X_CONTROL_BUTTONS = g_i_START_X_BUTTON + (g_i_BUTTON_SIZE + 
 INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 VOID PushButton(HWND parent, INT id);
 
+enum COLOR { BLUE, GREEN };
+enum ELEMENT { WINDOW_BACKGROUND, DISPLAY_BACKGROUND, FOREGROUND };
+
+CONST COLORREF g_COLORS[][3] =
+{
+	{ RGB(0,0,200), RGB(0,0,100), RGB(255, 0,0) },
+	{ RGB(0,200,0), RGB(0,100,0), RGB(0, 255, 0)}
+};
+
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, INT nCmdShow)
 {
+	//1) Ðåãèñòðàöèÿ êëàññà îêíà:
 	WNDCLASSEX wClass;
 	ZeroMemory(&wClass, sizeof(wClass));
 	wClass.style = 0;
@@ -53,6 +65,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, IN
 		return 0;
 	}
 
+	//2) Ñîçäàíèå îêíà:
 	HWND hwnd = CreateWindowEx
 	(
 		NULL,
@@ -69,6 +82,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, IN
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
 
+	//3) Çàïóñê öèêëà ñîîáùåíèé:
 	MSG msg;
 	while (GetMessage(&msg, hwnd, 0, 0) > 0)
 	{
@@ -82,7 +96,10 @@ VOID SetSkin(HWND hwnd, LPSTR skin);
 
 INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	static CONST CHAR DEFAULT_SKIN[] = "square_green";
+	static CONST CHAR DEFAULT_SKIN[] = "square green";
+	static CHAR skin[MAX_PATH]{};
+	static COLOR color_scheme = COLOR::BLUE;
+
 	switch (uMsg)
 	{
 	case WM_CREATE:
@@ -96,13 +113,32 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		HWND hDisplay = CreateWindowEx
 		(
 			NULL, "Edit", "0",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_RIGHT | ES_READONLY,
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_RIGHT /*| ES_READONLY*/,
 			g_i_START_X, g_i_START_Y,
 			g_i_DISPLAY_WIDTH, g_i_DISPLAY_HEIGHT,
 			hwnd, (HMENU)IDC_EDIT_DISPLAY,
 			NULL, NULL
 		);
+		AddFontResourceEx("Fonts\\digital-7\\digital-7.ttf", FR_PRIVATE, 0);
+		HFONT hFont = CreateFont
+		(
+			g_i_FONT_HEIGHT, g_i_FONT_WIDTH,	//Fontsize
+			0,		//Óãîë íàêëîíà
+			0,		//Óãîë íàêëîíà
+			500,	//Font weight
+			FALSE,	//Italic
+			FALSE,	//Underline
+			FALSE,	//Strikeout
+			DEFAULT_CHARSET,
+			OUT_CHARACTER_PRECIS,
+			CLIP_CHARACTER_PRECIS,
+			ANTIALIASED_QUALITY,
+			DEFAULT_PITCH | FF_DONTCARE,
+			"digital-7"
+		);
+		SendMessage(hDisplay, WM_SETFONT, (WPARAM)hFont, TRUE);
 
+		////////////////////// Digits: //////////////////////////
 		INT digit = 0;
 		CHAR sz_digit[2]{};
 		for (int i = 2; i >= 0; i--)
@@ -168,7 +204,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			NULL,
 			NULL
 		);
-
+		////////////////////// Operations: //////////////////////////
 		CONST CHAR sz_operations[] = "+-*/";
 		CHAR sz_operation[2] = "";
 		for (int i = 0; i < 4; i++)
@@ -238,8 +274,8 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		static double a = DBL_MIN, b = 0;
 		static int operation = 0;
-		static bool input = false;
-		static bool operation_input = false;
+		static bool input = false;	//ââîä îïåðàíäà ñ êëàâèàòóðû
+		static bool operation_input = false;	//ââîä îïåðàòîðà ñ êëàâèàòóðû
 		SetFocus(hwnd);
 		CONST INT SIZE = 256;
 		CHAR sz_display[SIZE]{};
@@ -406,20 +442,20 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CTLCOLOREDIT:
 	{
 		HDC hdc = (HDC)wParam;
-		SetBkMode(hdc, OPAQUE); SetBkColor(hdc, RGB(0, 0, 155));
-		SetBkColor(hdc, RGB(0, 0, 100));
-		HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 200));
-		SetTextColor(hdc, RGB(255, 0, 0));
+		SetBkMode(hdc, OPAQUE);
+		SetBkColor(hdc, g_COLORS[color_scheme][ELEMENT::DISPLAY_BACKGROUND]);
+		HBRUSH hBrush = CreateSolidBrush(g_COLORS[color_scheme][ELEMENT::WINDOW_BACKGROUND]);
+		SetTextColor(hdc, g_COLORS[color_scheme][ELEMENT::FOREGROUND]);
 		SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hBrush);
 		SendMessage(hwnd, WM_ERASEBKGND, wParam, 0);
-		SendMessage(GetDlgItem(hwnd, IDC_EDIT_DISPLAY), WM_SETTEXT, 0, (LPARAM)"0");
-
-		HWND hEditDisplay = GetDlgItem(hwnd, IDC_EDIT_DISPLAY);
+		//SendMessage(GetDlgItem(hwnd, IDC_EDIT_DISPLAY), WM_SETTEXT, 0, (LPARAM)"0");
+		////////////////////////////////////////////////////////////////
+		/*HWND hEditDisplay = GetDlgItem(hwnd, IDC_EDIT_DISPLAY);
 		HDC hdcEditDisplay = GetDC(hEditDisplay);
 		SetBkMode(hdcEditDisplay, OPAQUE); SetBkColor(hdcEditDisplay, RGB(0, 0, 155));
 		HBRUSH hBrushDisplay = CreateSolidBrush(RGB(0, 0, 200));
 		SetTextColor(hdcEditDisplay, RGB(255, 0, 0));
-		ReleaseDC(hwnd, hdcEditDisplay);
+		ReleaseDC(hwnd, hdcEditDisplay);*/
 
 		return (LRESULT)hBrush;
 	}
@@ -431,14 +467,14 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		InsertMenu(hMainMenu, 0, MF_BYPOSITION | MF_STRING, CM_EXIT, "Exit");
 		InsertMenu(hMainMenu, 0, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
 		InsertMenu(hMainMenu, 0, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hSubMenu, "Skins");
-		InsertMenu(hSubMenu, 0, MF_BYPOSITION | MF_STRING, CM_SQUARE_GREEN, "Square green");
-		InsertMenu(hSubMenu, 0, MF_BYPOSITION | MF_STRING, CM_SQUARE_BLUE, "Square blue");
+		InsertMenu(hSubMenu, 0, MF_BYPOSITION | MF_STRING, CM_SQUARE_GREEN, "square green");
+		InsertMenu(hSubMenu, 0, MF_BYPOSITION | MF_STRING, CM_SQUARE_BLUE, "square blue");
 
 		BOOL item = TrackPopupMenuEx(hMainMenu, TPM_BOTTOMALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, LOWORD(lParam), HIWORD(lParam), hwnd, NULL);
 		switch (item)
 		{
-		case CM_SQUARE_BLUE: SetSkin(hwnd, (LPSTR)"square_blue"); break;
-		case CM_SQUARE_GREEN: SetSkin(hwnd, (LPSTR)"square_green"); break;
+		case CM_SQUARE_BLUE:	SetSkin(hwnd, (LPSTR)"square blue"); color_scheme = BLUE; break;
+		case CM_SQUARE_GREEN:	SetSkin(hwnd, (LPSTR)"square green"); color_scheme = GREEN; break;
 		case CM_EXIT:		DestroyWindow(hwnd); break;
 		}
 
@@ -448,6 +484,9 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SendMessage(hwnd, WM_CTLCOLOREDIT, (WPARAM)hdcEdit, 0);
 		ReleaseDC(hwnd, hdcEdit);
 		ReleaseDC(hwnd, hdc);
+		CHAR sz_buffer[MAX_PATH]{};
+		SendMessage(GetDlgItem(hwnd, IDC_EDIT_DISPLAY), WM_GETTEXT, MAX_PATH, (LPARAM)sz_buffer);
+		SendMessage(GetDlgItem(hwnd, IDC_EDIT_DISPLAY), WM_SETTEXT, 0, (LPARAM)sz_buffer);
 	}
 	break;
 	case WM_DESTROY:PostQuitMessage(0); break;
@@ -466,7 +505,7 @@ VOID PushButton(HWND parent, INT id)
 
 LPSTR FormatLastError()
 {
-	DWORD dwErrorMessageID = GetLastError();
+	DWORD dwErrorMessageID = GetLastError();	//Ôóíêöèÿ GetLastError() âîçâðàùàåò ÷èñëîâîé êîä ïîñëåäíåé âîçíèêøåé îøèáêè âûïîëíåíÿ.
 	LPSTR lpszMessageBuffer = NULL;
 	DWORD dwSize = FormatMessage
 	(
