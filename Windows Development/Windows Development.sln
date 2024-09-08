@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MainWindow", "..\MainWindow
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Calc", "..\Calc\Calc.vcxproj", "{8D0D0844-34BA-4428-97D8-2F2A7C968837}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Text Editor", "..\Text Editor\Text Editor.vcxproj", "{623E6658-3523-4E9A-BDF0-D56B6D477BEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{8D0D0844-34BA-4428-97D8-2F2A7C968837}.Release|x64.Build.0 = Release|x64
 		{8D0D0844-34BA-4428-97D8-2F2A7C968837}.Release|x86.ActiveCfg = Release|Win32
 		{8D0D0844-34BA-4428-97D8-2F2A7C968837}.Release|x86.Build.0 = Release|Win32
+		{623E6658-3523-4E9A-BDF0-D56B6D477BEF}.Debug|x64.ActiveCfg = Debug|x64
+		{623E6658-3523-4E9A-BDF0-D56B6D477BEF}.Debug|x64.Build.0 = Debug|x64
+		{623E6658-3523-4E9A-BDF0-D56B6D477BEF}.Debug|x86.ActiveCfg = Debug|Win32
+		{623E6658-3523-4E9A-BDF0-D56B6D477BEF}.Debug|x86.Build.0 = Debug|Win32
+		{623E6658-3523-4E9A-BDF0-D56B6D477BEF}.Release|x64.ActiveCfg = Release|x64
+		{623E6658-3523-4E9A-BDF0-D56B6D477BEF}.Release|x64.Build.0 = Release|x64
+		{623E6658-3523-4E9A-BDF0-D56B6D477BEF}.Release|x86.ActiveCfg = Release|Win32
+		{623E6658-3523-4E9A-BDF0-D56B6D477BEF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
