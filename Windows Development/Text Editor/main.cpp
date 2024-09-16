@@ -34,6 +34,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, IN
 	wClass.cbClsExtra = 0;
 	wClass.cbWndExtra = 0;
 
+	//wClass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+	//wClass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wClass.hIcon = (HICON)LoadImage(hInstance, "ICO\\notes.ico", IMAGE_ICON, LR_DEFAULTSIZE, LR_DEFAULTSIZE, LR_LOADFROMFILE);
 	wClass.hIconSm = (HICON)LoadImage(hInstance, "ICO\\notes.ico", IMAGE_ICON, LR_DEFAULTSIZE, LR_DEFAULTSIZE, LR_LOADFROMFILE);
 	wClass.hCursor = LoadCursor(hInstance, IDC_ARROW);
@@ -73,12 +75,17 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, IN
 		return 0;
 	}
 	ShowWindow(hwnd, nCmdShow);
+	std::cout << "\n-------------------------------\n" << std::endl;
+	std::cout << lpCmdLine << std::endl;
+	CHAR sz_title[MAX_PATH]{};
+	if(strlen(lpCmdLine))LoadTextFileToEdit(GetDlgItem(hwnd, IDC_EDIT), lpCmdLine, sz_title);
+	std::cout << "\n-------------------------------\n" << std::endl;
 	UpdateWindow(hwnd);
 
 	//3) Запуск цикла сообщений:
 
 	MSG msg;
-	while (GetMessage(&msg, 0, 0, NULL) > 0)
+	while (GetMessage(&msg, 0, 0, NULL) > 0) //не писать hwnd
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
