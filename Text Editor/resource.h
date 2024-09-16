@@ -3,6 +3,7 @@
 // Used by Resource.rc
 //
 #define IDR_MAIN_MENU                   101
+#define IDC_STATUS						102
 #define IDC_EDIT                        1000
 #define ID_HELP_ABOUT                   40001
 #define ID_FILE_NEW                     40002
@@ -19,6 +20,7 @@
 #define ID_VIEW_STATUSBAR               40013
 #define ID_FORMAT_WORDWRAP              40014
 #define ID_FORMAT_FONT                  40015
+
 
 // Next default values for new objects
 // 
