@@ -78,7 +78,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, IN
 	//3) Запуск цикла сообщений:
 
 	MSG msg;
-	while (GetMessage(&msg, hwnd, 0, NULL) > 0)
+	while (GetMessage(&msg, 0, 0, NULL) > 0)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
