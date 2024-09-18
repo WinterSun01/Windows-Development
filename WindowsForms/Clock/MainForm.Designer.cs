@@ -66,7 +66,7 @@
             // 
             // notifyIcon1
             // 
-            this.notifyIcon1.Text = "Clock Project";
+            this.notifyIcon1.Text = "notifyIcon1";
             this.notifyIcon1.Visible = true;
             // 
             // MainForm

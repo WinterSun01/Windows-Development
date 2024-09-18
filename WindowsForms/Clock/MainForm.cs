@@ -23,6 +23,7 @@ namespace Clock
 
             trayIcon = new NotifyIcon();
             trayIcon.Icon = new Icon("time.ico");
+            trayIcon.Text = "Clock Project";
             trayIcon.Visible = true;
 
             trayIcon.DoubleClick += new EventHandler(trayIcon_DoubleClick);
