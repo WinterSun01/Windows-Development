@@ -32,16 +32,19 @@
             this.label1 = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.cbShowDate = new System.Windows.Forms.CheckBox();
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 50F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label1.Location = new System.Drawing.Point(46, 54);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(44, 16);
+            this.label1.Size = new System.Drawing.Size(268, 95);
             this.label1.TabIndex = 0;
             this.label1.Text = "label1";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // timer1
             // 
@@ -52,13 +55,19 @@
             // cbShowDate
             // 
             this.cbShowDate.AutoSize = true;
-            this.cbShowDate.Location = new System.Drawing.Point(49, 151);
+            this.cbShowDate.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.cbShowDate.Location = new System.Drawing.Point(62, 302);
             this.cbShowDate.Name = "cbShowDate";
-            this.cbShowDate.Size = new System.Drawing.Size(126, 20);
+            this.cbShowDate.Size = new System.Drawing.Size(270, 43);
             this.cbShowDate.TabIndex = 1;
             this.cbShowDate.Text = "Показать дату";
             this.cbShowDate.UseVisualStyleBackColor = true;
             this.cbShowDate.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // notifyIcon1
+            // 
+            this.notifyIcon1.Text = "Clock Project";
+            this.notifyIcon1.Visible = true;
             // 
             // MainForm
             // 
@@ -80,6 +89,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.CheckBox cbShowDate;
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
     }
 }
 
