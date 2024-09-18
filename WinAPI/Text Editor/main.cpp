@@ -34,10 +34,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, IN
 	wClass.cbClsExtra = 0;
 	wClass.cbWndExtra = 0;
 
-	//wClass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
-	//wClass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
-	wClass.hIcon = (HICON)LoadImage(hInstance, "ICO\\notes.ico", IMAGE_ICON, LR_DEFAULTSIZE, LR_DEFAULTSIZE, LR_LOADFROMFILE);
-	wClass.hIconSm = (HICON)LoadImage(hInstance, "ICO\\notes.ico", IMAGE_ICON, LR_DEFAULTSIZE, LR_DEFAULTSIZE, LR_LOADFROMFILE);
+	wClass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+	wClass.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wClass.hCursor = LoadCursor(hInstance, IDC_ARROW);
 	HBITMAP background = (HBITMAP)LoadImage(hInstance, "IMG\\background.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 	wClass.hbrBackground = CreatePatternBrush(background);
@@ -53,7 +51,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, IN
 		return 0;
 	}
 
-	//2) Создание окна
+	//2) Создание окна:
 
 	HWND hwnd = CreateWindowEx
 	(
@@ -75,17 +73,18 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, IN
 		return 0;
 	}
 	ShowWindow(hwnd, nCmdShow);
-	std::cout << "\n-------------------------------\n" << std::endl;
+	std::cout << "\n------------------------------------------------\n" << std::endl;
 	std::cout << lpCmdLine << std::endl;
 	CHAR sz_title[MAX_PATH]{};
-	if(strlen(lpCmdLine))LoadTextFileToEdit(GetDlgItem(hwnd, IDC_EDIT), lpCmdLine, sz_title);
-	std::cout << "\n-------------------------------\n" << std::endl;
+	if (strlen(lpCmdLine))LoadTextFileToEdit(GetDlgItem(hwnd, IDC_EDIT), lpCmdLine, sz_title);
+	std::cout << "\n------------------------------------------------\n" << std::endl;
 	UpdateWindow(hwnd);
 
 	//3) Запуск цикла сообщений:
 
 	MSG msg;
-	while (GetMessage(&msg, 0, 0, NULL) > 0) //не писать hwnd
+	
+	while (GetMessage(&msg, 0, 0, NULL) > 0)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -98,15 +97,14 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	static HINSTANCE hRichEdit20 = LoadLibrary("riched20.dll");
 	static HINSTANCE comCtrl32 = LoadLibrary("ComCtl32.dll");
-	//static INITCOMMONCONTROLSEX icce;
 	static CHAR sz_title[MAX_PATH]{};
 	static CHAR szFileName[MAX_PATH] = "";
 	static BOOL bnChanged = FALSE;
+
 	switch (uMsg)
 	{
 	case WM_CREATE:
 	{
-		//InitCommonControlsEx(&icce);
 		RECT windowRect;
 		RECT clientRect;
 		GetWindowRect(hwnd, &windowRect);
@@ -115,7 +113,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		std::cout << "Client:" << clientRect.left << tab << clientRect.top << tab << clientRect.right << tab << clientRect.bottom << std::endl;
 		HWND hEdit = CreateWindowEx
 		(
-			NULL, RICHEDIT_CLASS, "Workspace",
+			WS_EX_CLIENTEDGE, RICHEDIT_CLASS, "",
 			WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL,
 			0, 0,
 			windowRect.right - windowRect.left,
@@ -127,7 +125,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		);
 		SendMessage(hEdit, EM_SETEVENTMASK, 0, ENM_CHANGE);
 
-		//				Status bar:
+		// Status bar:
 		HWND hStatus = CreateWindowEx
 		(
 			NULL, STATUSCLASSNAME, "Status bar",
@@ -147,12 +145,12 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		//6) Creation date;
 		//7) Date of change;
 		INT dimensions[] = { 500, 600, 700, 800, 900, 1100, -1 };
-		//INT dimensions[] = { -1, -1, -1, -1, -1, -1, -1 };
 		SendMessage(hStatus, SB_SETPARTS, sizeof(dimensions) / sizeof(dimensions[0]), (LPARAM)dimensions);
 
 		DragAcceptFiles(hwnd, TRUE);
 	}
 	break;
+
 	case WM_SIZE:
 	{
 		RECT windowRect;
@@ -170,15 +168,18 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		MoveWindow(GetDlgItem(hwnd, IDC_STATUS), 0, 0, 0, 0, TRUE);
 	}
 	break;
+
 	case WM_DROPFILES:
 	{
-		DragQueryFile((HDROP)wParam, 0, szFileName, MAX_PATH);
+		HDROP hDrop = (HDROP)wParam;
+		DragQueryFile(hDrop, 0, szFileName, MAX_PATH);
 		std::cout << "WM_DROPFILES: " << szFileName << std::endl;
 		HWND hEdit = GetDlgItem(hwnd, IDC_EDIT);
 		LoadTextFileToEdit(hEdit, szFileName, sz_title);
-		DragFinish((HDROP)wParam);
+		DragFinish(hDrop);
 	}
 	break;
+
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
@@ -194,7 +195,6 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case IDCANCEL:	cancel = TRUE;
 				}
 			}
-			//CHAR szFileName[MAX_PATH]{};
 			if (cancel)break;
 			OPENFILENAME ofn;
 			ZeroMemory(&ofn, sizeof(ofn));
@@ -203,8 +203,6 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ofn.hwndOwner = hwnd;
 			ofn.lpstrFilter = "Text files: (*.txt)\0*.txt\0C Plus Plus files (*.cpp | *.h)\0*.cpp;*.h\0All files (*.*)\0*.*\0";
 			ofn.lpstrDefExt = "txt";
-			//std::cout << "Hello" << std::endl;
-			//std::cout << sizeof("Hello") << std::endl;
 			ofn.lpstrFile = szFileName;
 			ofn.nMaxFile = MAX_PATH;
 			ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
@@ -221,6 +219,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		break;
+
 		case ID_FILE_SAVE:
 		{
 			if (strlen(szFileName))
@@ -230,6 +229,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			SendMessage(GetDlgItem(hwnd, IDC_STATUS), SB_SETTEXT, 1, (LPARAM)"Сохранён");
 		}
 		break;
+
 		case ID_FILE_SAVEAS:
 		{
 			OPENFILENAME ofn;
@@ -237,9 +237,6 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ofn.lStructSize = sizeof(ofn);
 			ofn.hwndOwner = hwnd;
 			ofn.lpstrFilter = "Text files: (*.txt)\0*.txt\0C Plus Plus files (*.cpp | *.h)\0*.cpp;*.h\0All files: (*.*)\0*.*\0";
-			
-			/*To specify multiple filter patterns for a single display string,
-			use a semicolon to separate the patterns (for example, "*.TXT;*.DOC;*.BAK").*/
 			ofn.lpstrDefExt = "txt";
 			ofn.lpstrFile = szFileName;
 			ofn.nMaxFile = MAX_PATH;
@@ -256,13 +253,12 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		break;
-		/////////////////////////////////////////////////////////////////////
+
 		case IDC_EDIT:
 		{
-			if (HIWORD(wParam) == EN_CHANGE)	//Doesn't work with MULTILINE & WM_SETTEXT simultanously.
+			if (HIWORD(wParam) == EN_CHANGE)
 			{
 				bnChanged = TRUE;
-				//std::cout << "File was changed" << std::endl;
 				SendMessage(GetDlgItem(hwnd, IDC_STATUS), SB_SETTEXT, 1, (LPARAM)"Изменён");
 
 				HWND hEdit = GetDlgItem(hwnd, IDC_EDIT);
@@ -271,7 +267,6 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				LPSTR lpstrBuffer = (LPSTR)GlobalAlloc(GPTR, dwTextLen + 1);
 				SendMessage(hEdit, WM_GETTEXT, dwTextLen + 1, (LPARAM)lpstrBuffer);
 
-				//https://legacy.cplusplus.com/reference/cstring/strtok/
 				CHAR delimiters[] = " ,.!?;-()[]<>{}\"\':\\/\n";
 				int i = 0;
 				for (char* pch = strtok(lpstrBuffer, delimiters); pch; pch = strtok(NULL, delimiters))
@@ -288,11 +283,13 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 		}
 		break;
+
 	case WM_DESTROY:
 		FreeLibrary(comCtrl32);
 		FreeLibrary(hRichEdit20);
 		PostQuitMessage(0);
 		break;
+
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		break;
@@ -370,7 +367,6 @@ BOOL SaveTextFileFromEdit(HWND hEdit, LPCSTR lpszFileName, CHAR sz_title[])
 
 LPSTR FormatFileTime(FILETIME filetime, CONST CHAR sz_message[], CHAR sz_buffer[])
 {
-	//CHAR sz_buffer[MAX_PATH]{};
 	ZeroMemory(sz_buffer, MAX_PATH);
 	FILETIME localTime;
 	ZeroMemory(&localTime, sizeof(localTime));
@@ -392,7 +388,6 @@ LPSTR FormatFileTime(FILETIME filetime, CONST CHAR sz_message[], CHAR sz_buffer[
 
 VOID SetFileDataToStatusBar(HWND hwnd, CONST CHAR szFileName[], CHAR sz_title[])
 {
-	//CHAR sz_title[MAX_PATH]{};
 	sprintf(sz_title, "%s - %s", g_sz_WINDOW_CLASS, strrchr(szFileName, '\\') + 1);
 	std::cout << sz_title << std::endl;
 	SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)sz_title);
@@ -406,22 +401,6 @@ VOID SetFileDataToStatusBar(HWND hwnd, CONST CHAR szFileName[], CHAR sz_title[])
 	CHAR sz_buffer[MAX_PATH]{};
 	sprintf(sz_buffer, "%i B", fileData.nFileSizeLow);
 	SendMessage(GetDlgItem(hwnd, IDC_STATUS), SB_SETTEXT, 4, (LPARAM)sz_buffer);
-	/*FILETIME localTime;
-	ZeroMemory(&localTime, sizeof(localTime));
-	FileTimeToLocalFileTime(&fileData.ftCreationTime, &localTime);
-	SYSTEMTIME sysTime;
-	ZeroMemory(&sysTime, sizeof(sysTime));
-	FileTimeToSystemTime(&localTime, &sysTime);
-	ZeroMemory(sz_buffer, MAX_PATH);
-	sprintf
-	(
-		sz_buffer,
-		"%s:%02d.%02d.%02d %02d:%02d:%02d",
-		"Äàòà ñîçäàíèÿ: ",
-		sysTime.wYear, sysTime.wMonth, sysTime.wDay,
-		sysTime.wHour, sysTime.wMinute, sysTime.wSecond
-	);
-	std::cout << sz_buffer << std::endl;*/
 	SendMessage(GetDlgItem(hwnd, IDC_STATUS), SB_SETTEXT, 5,
 		(LPARAM)FormatFileTime(fileData.ftCreationTime, "Дата создания", sz_buffer));
 	SendMessage(GetDlgItem(hwnd, IDC_STATUS), SB_SETTEXT, 6,
