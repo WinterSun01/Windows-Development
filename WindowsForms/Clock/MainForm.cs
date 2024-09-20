@@ -12,62 +12,83 @@ namespace Clock
 {
     public partial class MainForm : Form
     {
-        
-        private NotifyIcon trayIcon;
-
+        bool controlsVisible;
         public MainForm()
         {
             InitializeComponent();
-
-            this.Icon = new Icon("time.ico");
-
-            trayIcon = new NotifyIcon();
-            trayIcon.Icon = new Icon("time.ico");
-            trayIcon.Text = "Clock Project";
-            trayIcon.Visible = true;
-
-            trayIcon.DoubleClick += new EventHandler(trayIcon_DoubleClick);
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            this.ShowIcon = true;
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            
-            if (this.WindowState == FormWindowState.Minimized)
-            {
-                this.Hide();
-                trayIcon.Visible = true;
-            }
-        }
-
-        
-        private void trayIcon_DoubleClick(object sender, EventArgs e)
-        {
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
+            //controlsVisible = true;
+            SetControlsVisibility(false);
+            this.StartPosition = FormStartPosition.Manual;
+            int start_x = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Right - this.Right - 25;
+            int start_y = 25;
+            this.Location = new Point(start_x, start_y);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            label1.Text = DateTime.Now.ToString("HH:mm:ss");
-
-            if (cbShowDate.Checked)
-                label1.Text += $"\n{DateTime.Now.ToString("dd.MM.yyyy")}";
+            labelTime.Text = DateTime.Now.ToString("hh:mm:ss tt");
+            if (cbShowDate.Checked) labelTime.Text += $"\n{DateTime.Now.ToString("dd.MM.yyyy")}";
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void btnHideControls_Click(object sender, EventArgs e)
         {
-            
+            SetControlsVisibility(false);
+        }
+        void SetControlsVisibility(bool visible)
+        {
+            this.FormBorderStyle = visible ? FormBorderStyle.Sizable : FormBorderStyle.None;
+            this.TransparencyKey = visible ? Color.Empty : this.BackColor;
+            this.ShowInTaskbar = visible;
+            this.cbShowDate.Visible = visible;
+            this.TopMost = !visible;
+            btnHideControls.Visible = visible;
+            labelTime.BackColor = visible ? this.BackColor : Color.LightBlue;
+            showControlsToolStripMenuItem.Checked = visible;
+            this.controlsVisible = visible;
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void quitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+            this.Close();
+        }
+
+        private void showDateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cbShowDate.Checked = showDateToolStripMenuItem.Checked;
+        }
+
+        private void cbShowDate_CheckedChanged(object sender, EventArgs e)
+        {
+            showDateToolStripMenuItem.Checked = cbShowDate.Checked;
+        }
+
+        private void showControlsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.controlsVisible = showControlsToolStripMenuItem.Checked;
+            SetControlsVisibility(controlsVisible);
+        }
+
+        private void labelTime_DoubleClick(object sender, EventArgs e)
+        {
+            SetControlsVisibility(!controlsVisible);
+        }
+
+        private void backgroundColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ColorDialog dialog = new ColorDialog();
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                labelTime.BackColor = dialog.Color;
+            }
+        }
+
+        private void fregroundColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ColorDialog dialog = new ColorDialog();
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                labelTime.ForeColor = dialog.Color;
+            }
         }
     }
 }
