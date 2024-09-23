@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing.Text;
+using System.Runtime.InteropServices;
+using System.IO;
 
 namespace Clock
 {
@@ -16,17 +19,31 @@ namespace Clock
         public MainForm()
         {
             InitializeComponent();
-            //controlsVisible = true;
             SetControlsVisibility(false);
             this.StartPosition = FormStartPosition.Manual;
             int start_x = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Right - this.Right - 25;
             int start_y = 25;
             this.Location = new Point(start_x, start_y);
+
+            AllocConsole();
+            CreateCustomFont();
+        }
+        void CreateCustomFont()
+        {
+            Console.WriteLine(Directory.GetCurrentDirectory());
+            Directory.SetCurrentDirectory("..\\..\\Fonts");
+            Console.WriteLine(Directory.GetCurrentDirectory());
+
+            PrivateFontCollection pfc = new PrivateFontCollection();
+            pfc.AddFontFile("Terminat.ttf");
+            Font font = new Font(pfc.Families[0], labelTime.Font.Size);
+            pfc.Dispose();
+            labelTime.Font = font;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            labelTime.Text = DateTime.Now.ToString("hh:mm:ss tt");
+            labelTime.Text = DateTime.Now.ToString("HH:mm:ss");
             if (cbShowDate.Checked) labelTime.Text += $"\n{DateTime.Now.ToString("dd.MM.yyyy")}";
         }
 
@@ -89,6 +106,20 @@ namespace Clock
             {
                 labelTime.ForeColor = dialog.Color;
             }
+        }
+
+        const UInt32 StdOutputHandle = 0xFFFFFFF5;
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetStdHandle(UInt32 handle);
+        [DllImport("kernel32.dll")]
+        static extern void SetStdHandle(UInt32 nStdHandle, IntPtr handle);
+        [DllImport("kernel32.dll")]
+        static extern bool AllocConsole();
+
+        private void chooseFontToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChooseFont dialog = new ChooseFont();
+            dialog.ShowDialog();
         }
     }
 }
