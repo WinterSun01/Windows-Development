@@ -19,6 +19,10 @@ namespace Clock
         bool controlsVisible;
         public System.Windows.Forms.Label LabelTime { get => labelTime; }
         ChooseFont chooseFontDialog;
+        AlarmDialog alarmDialog;
+        public string AlarmFile { get; set; }
+        public DateTime AlarmTime { get; set; }
+        public System.Windows.Forms.NotifyIcon NotifyIcon { get => notifyIconSystemTray; }
         public MainForm()
         {
             InitializeComponent();
@@ -29,13 +33,16 @@ namespace Clock
             int start_y = 25;
             this.Location = new Point(start_x, start_y);
             this.TopMost = topmostToolStripMenuItem.Checked = true;
-            
+            ///////////////////////////////
+            ///
             cbPin.Checked = true;
 
             AllocConsole();
             CreateCustomFont();
 
             chooseFontDialog = new ChooseFont(this);
+            alarmDialog = new AlarmDialog(this);
+            //AlarmTime = DateTime.Now;
         }
         void CreateCustomFont()
         {
@@ -52,8 +59,23 @@ namespace Clock
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            labelTime.Text = DateTime.Now.ToString("HH:mm:ss");
-            if (cbShowDate.Checked) labelTime.Text += $"\n{DateTime.Now.ToString("dd.MM.yyyy")}";
+            const string TIME_FORMAT = "HH:mm:ss";
+            const string DATE_FORMAT = "dd.MM.yyyy";
+            labelTime.Text = DateTime.Now.ToString(TIME_FORMAT);
+            if (cbShowDate.Checked) labelTime.Text += $"\n{DateTime.Now.ToString(DATE_FORMAT)}";
+
+            //			Alarm:
+            //if (AlarmTime.ToString(TIME_FORMAT) == labelTime.Text)
+            //Console.WriteLine($"{AlarmTime.TimeOfDay}\t{DateTime.Now.TimeOfDay}");
+            DateTime currentTime = new DateTime(DateTime.Now.Ticks - DateTime.Now.Ticks % TimeSpan.TicksPerSecond);
+            //https://stackoverflow.com/questions/1004698/how-to-truncate-milliseconds-off-of-a-net-datetime#:~:text=%2F%2FRemove%20milliseconds%20DateTime%20date,mm%3Ass%22%2C%20null)%3B
+            Console.WriteLine($"{AlarmTime}\t{currentTime}");
+            if (AlarmTime.Equals(currentTime))
+            {
+                //MessageBox.Show("Пора вставать");
+                axWindowsMediaPlayer.URL = AlarmFile;
+                axWindowsMediaPlayer.Ctlcontrols.play();
+            }
         }
 
         private void btnHideControls_Click(object sender, EventArgs e)
@@ -72,6 +94,8 @@ namespace Clock
             showControlsToolStripMenuItem.Checked = visible;
             this.controlsVisible = visible;
             cbPin.Visible = visible;
+
+            axWindowsMediaPlayer.Visible = visible;
         }
 
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -117,7 +141,7 @@ namespace Clock
                 labelTime.ForeColor = dialog.Color;
             }
         }
-
+        /// ///////////////////////////////////
         const UInt32 StdOutputHandle = 0xFFFFFFF5;
         [DllImport("kernel32.dll")]
         static extern IntPtr GetStdHandle(UInt32 handle);
@@ -161,6 +185,11 @@ namespace Clock
             //cbPin.Checked = !cbPin.Checked;
             topmostToolStripMenuItem.Checked = cbPin.Checked;
             cbPin.BackgroundImage = cbPin.Checked ? Properties.Resources.pinned.ToBitmap() : Properties.Resources.note_thepin.ToBitmap();
+        }
+
+        private void alarmToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            alarmDialog.ShowDialog();
         }
     }
 }
