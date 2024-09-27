@@ -68,7 +68,6 @@ namespace Clock
             //if (AlarmTime.ToString(TIME_FORMAT) == labelTime.Text)
             //Console.WriteLine($"{AlarmTime.TimeOfDay}\t{DateTime.Now.TimeOfDay}");
             DateTime currentTime = new DateTime(DateTime.Now.Ticks - DateTime.Now.Ticks % TimeSpan.TicksPerSecond);
-            //https://stackoverflow.com/questions/1004698/how-to-truncate-milliseconds-off-of-a-net-datetime#:~:text=%2F%2FRemove%20milliseconds%20DateTime%20date,mm%3Ass%22%2C%20null)%3B
             Console.WriteLine($"{AlarmTime}\t{currentTime}");
             if (AlarmTime.Equals(currentTime))
             {
